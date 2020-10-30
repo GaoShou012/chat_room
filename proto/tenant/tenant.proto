@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+//package proto.tenant;
+
+//option go_package = "wchat.im/proto/tenant;tenant";
+
+service TenantService {
+    rpc Create(CreateReq) returns (CreateRsp);
+    rpc Check(CheckReq) returns(CheckRsp);
+}
+
+message CreateReq{
+    string tenantCode = 1;
+    string tenantKey = 2;
+}
+message CreateRsp{
+    uint64 code = 1;
+    string message = 2;
+}
+
+message CheckReq{
+    string tenantCode = 1;
+    string tenantKey = 2;
+}
+message CheckRsp{
+    uint64 code = 1;
+    string message = 2;
+}
+

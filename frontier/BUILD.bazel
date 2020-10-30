@@ -1,0 +1,42 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+load("@com_github_jmhodges_bazel_gomock//:gomock.bzl", "gomock")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "channel.go",
+        "channel_ws.go",
+        "frontier.go",
+        "metrics.go",
+        "sender.go",
+        "server.go",
+    ],
+    importpath = "wchat.im/frontier",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//proto/message:go_default_library",
+        "@com_github_gobwas_ws//:go_default_library",
+        "@com_github_gobwas_ws//wsutil:go_default_library",
+        "@com_github_golang_glog//:go_default_library",
+        "@com_github_mailru_easygo//netpoll:go_default_library",
+        "@com_github_prometheus_client_golang//prometheus:go_default_library",
+    ],
+)
+
+go_test(
+    name = "go_default_test",
+    srcs = [
+        "channel_test.go",
+        "mock_channel_test.go",
+        "mock_leavable_test.go",
+        "mock_message_test.go",
+        "mock_sendable_test.go",
+        "mock_sender_test.go",
+        "sender_test.go",
+    ],
+    embed = [":go_default_library"],
+    deps = [
+        "//proto/message:go_default_library",
+        "@com_github_petergtz_pegomock//:go_default_library",
+    ],
+)

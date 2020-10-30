@@ -1,0 +1,224 @@
+syntax = "proto3";
+
+package proto.room;
+
+option go_package = "wchat.im/proto/room;room";
+
+// 通行证字段
+message PassToken {
+    string tenantCode = 1;
+    string roomCode = 2;
+    string userType = 3;
+    uint64 userId = 4;
+    string userName = 5;
+    string userThumb = 6;
+    string userTags = 7;
+}
+
+// 消息格式-From
+message From {
+    string path = 1;            // 来源路径 $FrontierId.ConnId
+    PassToken passToken = 2;    // 来源用户信息
+}
+// 消息格式-To
+message To {
+    string path = 1;
+}
+// 消息格式
+message Message {
+    string type = 1;                // 动作，空字符串，就是普通消息
+    string content = 2;             // 内容
+    string contentType = 3;         // 内容类型
+    uint64 clientMsgId = 4;         // 客户端消息ID
+    string serverMsgId = 5;         // 服务端消息ID
+    uint64 serverMsgTimestamp = 6;  // 时间戳
+    From from = 7;                  // 源
+    To to = 8;                      // 目标
+    map<string, bool> ruledOut = 9; // 排除需要推送的连接
+}
+
+// 消息记录的返回格式
+message Record {
+    string id = 1;
+    string payload = 2;
+}
+
+service RoomService {
+    // 边界机心跳
+    rpc FrontierPing(FrontierPingReq) returns(FrontierPingRsp);
+
+    // 制作用户通行证
+    rpc MakePassToken(MakePassTokenReq) returns (MakePassTokenRsp);
+    // 查看用户通行证
+    rpc ViewPassToken(ViewPassTokenReq) returns (ViewPassTokenRsp);
+
+    // 用户加入
+    rpc Join(JoinReq) returns (JoinRsp);
+
+    // 用户离开
+    rpc Leave(LeaveReq) returns (LeaveRsp);
+
+    // 移除用户
+    // rpc RemoveUser(RemoveUserReq) returns(RemoveUserRsp);
+
+    // 房间用户数量
+    rpc GetUsersCount(GetUsersCountReq) returns (GetUsersCountRsp);
+    rpc SetUsersCount(SetUsersCountReq) returns (SetUsersCountRsp);
+
+    // 广播消息
+    rpc Broadcast(BroadcastReq) returns (BroadcastRsp);
+
+    // 读取消息记录
+    rpc Record(RecordReq) returns (RecordRsp);
+
+    // 读取房间信息
+    rpc Info(InfoReq) returns (InfoRsp);
+
+    rpc SetTenantUserAcl(SetTenantUserAclReq) returns (SetTenantUserAclRsp);
+    rpc GetTenantUserAcl(GetTenantUserAclReq) returns (GetTenantUserAclRsp);
+
+    rpc SetVirtualUserCount(SetVirtualUserCountReq) returns (SetVirtualUserCountRsp);
+    rpc GetVirtualUserCount(GetVirtualUserCountReq) returns (GetVirtualUserCountRsp);
+}
+
+message SetVirtualUserCountReq {
+    string tenantCode = 1;
+    string roomCode = 2;
+    uint64 count = 3;
+}
+message SetVirtualUserCountRsp {
+    uint64 code = 1;
+    string desc = 2;
+}
+
+message GetVirtualUserCountReq{
+    string tenantCode = 1;
+    string roomCode = 2;
+}
+message GetVirtualUserCountRsp{
+    uint64 code = 1;
+    string desc = 2;
+    uint64 count = 3;
+}
+
+message SetTenantUserAclReq {
+    string tenantCode = 1;
+    uint64 userId = 2;
+    string key = 3;
+    string val = 4;
+}
+message SetTenantUserAclRsp {
+    uint64 code = 1;
+    string desc = 2;
+}
+
+message GetTenantUserAclReq {
+    string tenantCode = 1;
+    uint64 userId = 2;
+    string key = 3;
+}
+message GetTenantUserAclRsp {
+    uint64 code = 1;
+    string desc = 2;
+    string val = 3;
+}
+
+message FrontierPingReq{
+    string frontierId = 1;
+}
+message FrontierPingRsp{}
+
+message MakePassTokenReq {
+    string tenantCode = 1;
+    string tenantKey = 2;
+    string roomCode = 3;
+    string userType = 4;
+    uint64 userId = 5;
+    string userName = 6;
+    string userThumb = 7;
+    string userTags = 8;
+}
+message MakePassTokenRsp {
+    uint64 code = 1;
+    string message = 2;
+    string token = 3;
+}
+
+message ViewPassTokenReq {
+    string token = 1;
+}
+message ViewPassTokenRsp {
+    PassToken passToken = 1;
+}
+
+message JoinReq {
+    PassToken passToken = 1;
+    string frontierId = 2;
+    uint64 connId = 3;
+}
+message JoinRsp {
+    uint64 code = 1;
+    string message = 2;
+    PassToken passToken = 3;
+    string lastMessageId = 4;
+}
+
+message LeaveReq{
+    PassToken passToken = 1;
+    string frontierId = 2;
+    uint64 connId = 3;
+}
+message LeaveRsp{}
+
+message RemoveUserReq {
+    PassToken passToken = 1;
+    PassToken user = 2;
+    uint64 seconds = 3;
+}
+message RemoveUserRsp {
+    uint64 code = 1;
+    string message = 2;
+}
+
+message GetUsersCountReq {
+    string tenantCode = 1;
+    string roomCode = 2;
+}
+message GetUsersCountRsp {
+    uint64 count = 1;
+}
+
+message SetUsersCountReq {
+    uint64 frontierId = 1;
+    string tenantCode = 2;
+    string roomCode = 3;
+    uint64 count = 4;
+}
+message SetUsersCountRsp {
+    uint64 count = 1;
+}
+
+message BroadcastReq{
+    Message message = 1;
+}
+message BroadcastRsp{
+    Message message = 1;
+}
+
+message RecordReq {
+    string tenantCode = 1;
+    string roomCode = 2;
+    string lastMessageId = 3;
+    uint64 count = 4;
+}
+message RecordRsp {
+    repeated Message record = 1;
+}
+
+message InfoReq {
+    string tenantCode = 1;
+    repeated string roomCode = 2;
+}
+message InfoRsp {
+    map<string, uint64> list = 1;
+}

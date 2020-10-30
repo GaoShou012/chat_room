@@ -1,0 +1,18 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "room_node_router.go",
+        "room_service_router.go",
+    ],
+    importpath = "wchat.im/frontier/router",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//frontier:go_default_library",
+        "//proto/message:go_default_library",
+        "//proto/room:go_default_library",
+        "//proto/room/node:go_default_library",
+        "@com_github_golang_glog//:go_default_library",
+    ],
+)
